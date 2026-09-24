@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MochaTrade | Luxury Intelligence Console</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;600&family=Outfit:wght@200;300;400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+            display: ['Outfit', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #030407;
+      color: #f8fafc;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .bg-noise {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 50;
+    }
+
+    .orb-1 {
+      position: fixed; top: -10%; left: 10%; width: 50vw; height: 50vw;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+      filter: blur(100px); pointer-events: none; z-index: 0; transition: background 1.5s ease;
+    }
+    
+    .orb-2 {
+      position: fixed; bottom: -20%; right: -5%; width: 60vw; height: 60vw;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 60%);
+      filter: blur(120px); pointer-events: none; z-index: 0; transition: background 1.5s ease;
+    }
+
+    .glass-premium {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+      border-radius: 28px;
+    }
+
+    .glass-inset {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: inset 0 10px 20px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+
+    .luxury-card {
+      position: relative;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+    
+    .luxury-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      padding: 2px;
+      background: linear-gradient(180deg, rgba(var(--card-theme), 0.6) 0%, rgba(255,255,255,0.05) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.5;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .luxury-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8), 0 0 40px -15px rgba(var(--card-theme), 0.5);
+    }
+
+    .luxury-card:hover::before {
+      opacity: 1;
+      background: linear-gradient(180deg, rgba(var(--card-theme), 1) 0%, rgba(var(--card-theme), 0.2) 100%);
+    }
+
+    .link-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      text-decoration: none;
+      display: block;
+    }
+    
+    .link-card.has-link:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--active-theme-color);
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5), inset 0 0 20px -10px var(--active-theme-color);
+    }
+    
+    .link-card-arrow {
+      opacity: 0;
+      transform: translate(-4px, 4px);
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      color: var(--active-theme-color);
+    }
+    
+    .link-card.has-link:hover .link-card-arrow {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+
+    .text-gradient {
+      background: linear-gradient(to bottom right, #ffffff 20%, rgba(255, 255, 255, 0.4) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .switcher-btn {
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      color: #64748b;
+    }
+    
+    .switcher-btn.active {
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+    
+    .meter-track {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.5s ease;
+    }
+    
+    .meter-india-marker {
+      position: absolute;
+      top: -2px; bottom: -2px;
+      width: 2px;
+      background-color: #94a3b8;
+      box-shadow: 0 0 8px #94a3b8;
+      z-index: 10;
+      transition: left 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="relative antialiased selection:bg-white/20 pb-24">
+
+  <div class="bg-noise"></div>
+  <div class="orb-1" id="bg-orb-1"></div>
+  <div class="orb-2" id="bg-orb-2"></div>
+
+  <main class="relative z-10 max-w-[1600px] mx-auto p-6 md:p-12 space-y-10">
+
+    <!-- LUXURY NAVIGATION -->
+    <nav class="flex flex-col md:flex-row items-center justify-between gap-8 mb-6">
+      <div class="flex items-center gap-4 tracking-widest uppercase font-mono text-xs">
+        <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
+          <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <span class="opacity-70">MochaTrade Intelligence</span>
+      </div>
+
+      <div class="glass-premium px-10 py-5 rounded-full flex items-center gap-12 font-display font-medium text-lg relative" id="switcher-container">
+        <button onclick="setMarket('CH')" id="btn-CH" class="switcher-btn active">Switzerland</button>
+        <button onclick="setMarket('AE')" id="btn-AE" class="switcher-btn">UAE</button>
+        <button onclick="setMarket('BR')" id="btn-BR" class="switcher-btn">Brazil</button>
+        
+        <!-- FIX: Added left-0 to ensure absolute positioning starts from true zero -->
+        <div id="active-slider" class="absolute bottom-2.5 left-0 h-[3px] rounded-full bg-white shadow-[0_0_12px_#fff] transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style="width: 24px;"></div>
+      </div>
+
+      <div class="hidden md:flex flex-col items-end w-32 font-mono text-xs">
+        <span class="text-slate-500 uppercase tracking-widest">Selected Rank</span>
+        <span id="ui-rank" class="text-white text-lg font-semibold">#1</span>
+      </div>
+    </nav>
+
+    <!-- GLOBAL RANKING -->
+    <section class="glass-premium p-8 md:p-10 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-white/10 pb-6 gap-4">
+        <div>
+          <h2 class="font-display text-3xl md:text-4xl text-white font-light">Global Market Sequencing</h2>
+          <p class="font-mono text-xs text-slate-400 uppercase tracking-widest mt-2">Multi-Market Comparison Output</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div onclick="setMarket('CH')" class="luxury-card p-8 group" style="--card-theme: 16, 185, 129;">
+          <div class="absolute top-5 right-5 bg-[rgba(var(--card-theme),0.15)] text-[rgb(var(--card-theme))] font-mono text-[10px] font-bold px-3 py-1 rounded-full border border-[rgba(var(--card-theme),0.3)] backdrop-blur-md">RANK #1</div>
+          <div class="text-4xl mb-4 mt-2 drop-shadow-2xl transition-transform group-hover:scale-110">🇨🇭</div>
+          <h3 class="font-display text-3xl text-white">Switzerland</h3>
+          <div class="mt-4 font-mono text-4xl text-[#10b981]">64<span class="text-xl text-slate-500">/70</span></div>
+          <p class="font-mono text-[11px] text-slate-400 mt-3 uppercase tracking-wider">Legal Anchor</p>
+        </div>
+
+        <div onclick="setMarket('AE')" class="luxury-card p-8 group" style="--card-theme: 14, 165, 233;">
+          <div class="absolute top-5 right-5 bg-[rgba(var(--card-theme),0.15)] text-[rgb(var(--card-theme))] font-mono text-[10px] font-bold px-3 py-1 rounded-full border border-[rgba(var(--card-theme),0.3)] backdrop-blur-md">RANK #2</div>
+          <div class="text-4xl mb-4 mt-2 drop-shadow-2xl transition-transform group-hover:scale-110">🇦🇪</div>
+          <h3 class="font-display text-3xl text-white">UAE</h3>
+          <div class="mt-4 font-mono text-4xl text-[#0ea5e9]">58<span class="text-xl text-slate-500">/70</span></div>
+          <p class="font-mono text-[11px] text-slate-400 mt-3 uppercase tracking-wider">Operational Hub</p>
+        </div>
+
+        <div onclick="setMarket('BR')" class="luxury-card p-8 group" style="--card-theme: 245, 158, 11;">
+          <div class="absolute top-5 right-5 bg-[rgba(var(--card-theme),0.15)] text-[rgb(var(--card-theme))] font-mono text-[10px] font-bold px-3 py-1 rounded-full border border-[rgba(var(--card-theme),0.3)] backdrop-blur-md">RANK #3</div>
+          <div class="text-4xl mb-4 mt-2 drop-shadow-2xl transition-transform group-hover:scale-110">🇧🇷</div>
+          <h3 class="font-display text-3xl text-white">Brazil</h3>
+          <div class="mt-4 font-mono text-4xl text-[#f59e0b]">49<span class="text-xl text-slate-500">/70</span></div>
+          <p class="font-mono text-[11px] text-slate-400 mt-3 uppercase tracking-wider">Mass-Retail Vol</p>
+        </div>
+
+        <div class="luxury-card p-8 opacity-60 pointer-events-none" style="--card-theme: 100, 116, 139;">
+          <div class="absolute top-5 right-5 bg-slate-500/20 text-slate-300 font-mono text-[10px] font-bold px-3 py-1 rounded-full border border-slate-500/30 backdrop-blur-md">BASELINE</div>
+          <div class="text-4xl mb-4 mt-2 drop-shadow-2xl grayscale">🇮🇳</div>
+          <h3 class="font-display text-3xl text-slate-300">India</h3>
+          <div class="mt-4 font-mono text-4xl text-slate-400">37<span class="text-xl text-slate-600">/70</span></div>
+          <p class="font-mono text-[11px] text-slate-500 mt-3 uppercase tracking-wider">High Friction</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCOREBOARD & HERO -->
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch">
+      <div class="xl:col-span-8 glass-premium p-10 md:p-14 flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-white/5 to-transparent blur-2xl"></div>
+        
+        <div>
+          <h3 class="font-mono text-sm tracking-[0.2em] text-slate-400 uppercase mb-4">Detailed Jurisdiction Inspection</h3>
+          <h1 class="font-display font-light text-7xl md:text-8xl text-gradient tracking-tight mb-4 flex items-center gap-6">
+            <span id="ui-title">Switzerland</span> <span id="ui-flag" class="text-5xl opacity-80 shadow-2xl">🇨🇭</span>
+          </h1>
+          <div class="inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 font-mono text-xs text-white tracking-widest uppercase mb-10">
+            <span id="ui-regulator">FINMA DLT Act</span>
+          </div>
+        </div>
+
+        <div class="flex items-end gap-12 border-t border-white/10 pt-8 mt-4">
+          <div>
+            <h4 class="font-mono text-xs text-slate-500 uppercase tracking-widest mb-2">Total Suitability Score</h4>
+            <div class="font-display text-5xl text-white"><span id="ui-total-score">64</span><span class="text-3xl text-slate-600">/70</span></div>
+          </div>
+          <div>
+            <h4 class="font-mono text-xs text-slate-500 uppercase tracking-widest mb-2">India Baseline</h4>
+            <div class="font-display text-5xl text-slate-500">37<span class="text-3xl text-slate-700">/70</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="xl:col-span-4 glass-premium p-10 md:p-12 flex flex-col justify-center relative overflow-hidden group">
+        <div id="macro-glow" class="absolute inset-0 opacity-10 transition-all duration-700 blur-3xl bg-emerald-500"></div>
+        <h3 class="font-mono text-xs tracking-widest text-slate-400 uppercase mb-6 relative z-10">Target Macro (GDP)</h3>
+        <div id="ui-gdp-target" class="font-display text-7xl font-light text-white mb-6 relative z-10">1.4%</div>
+        <p id="ui-gdp-desc" class="text-sm text-slate-300 font-light leading-relaxed relative z-10">
+          As a mature economy, GDP growth is low, but wealth concentration is high. Expanding here captures high-net-worth individual liquidity.
+        </p>
+      </div>
+    </section>
+
+    <!-- RADAR & RUBRIC -->
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div class="glass-premium p-10 flex flex-col h-[600px]">
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="font-display text-3xl text-white font-light">Agility vs. India</h3>
+          <div class="flex gap-6 font-mono text-xs uppercase tracking-widest">
+            <span class="flex items-center gap-2 text-slate-500"><span class="w-3 h-3 rounded-full bg-slate-500"></span> India</span>
+            <span class="flex items-center gap-2 text-white"><span id="radar-legend-color" class="w-3 h-3 rounded-full shadow-[0_0_15px_currentColor]"></span> Target</span>
+          </div>
+        </div>
+        <div class="relative w-full flex-1">
+          <canvas id="starPlot"></canvas>
+        </div>
+      </div>
+
+      <div class="glass-premium p-10 flex flex-col">
+        <h3 class="font-display text-3xl text-white font-light mb-2">Regulatory Scoring Rubric</h3>
+        <p class="font-mono text-xs text-slate-500 uppercase tracking-widest mb-10">Absolute Scoring Scale (0-10) per Legal Dimension</p>
+        
+        <div class="space-y-6 flex-1" id="meters-container"></div>
+        
+        <div class="mt-8 pt-6 border-t border-white/5 flex items-center gap-6 font-mono text-xs text-slate-500">
+          <span class="flex items-center gap-2"><div class="w-4 h-1 bg-current"></div> India Benchmark Marker</span>
+          <span class="flex items-center gap-2"><div id="legend-fill" class="w-4 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500"></div> Target Fill</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STRATEGIC ROADMAP (LUXURY HYPERLINKS) -->
+    <section class="glass-premium p-10">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-white/10 pb-6 gap-4">
+        <div>
+          <h2 class="font-display text-4xl text-white font-light">18-Month Phased Roadmap</h2>
+          <p class="font-mono text-xs text-slate-400 uppercase tracking-widest mt-2">Interactive Strategy Execution (Select cards for documentation)</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="roadmap-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- OPERATIONAL DIVERGENCE -->
+    <div class="space-y-8">
+      <h2 class="font-display text-4xl font-light text-white pl-4 border-l-2 border-white/20">Strategic Compliance Adjustments</h2>
+      <div class="glass-premium p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <h3 class="font-mono text-xs tracking-[0.1em] text-white/50 uppercase mb-3">VASP & Regulations</h3>
+          <h4 id="ui-mod1-title" class="font-display text-2xl text-white mb-4">FINMA DLT Act</h4>
+          <p id="ui-mod1-target" class="font-light text-slate-300 leading-relaxed">Legally defined categories for tokens. Protected by established statutory law.</p>
+        </div>
+        <div class="border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-12">
+          <h3 class="font-mono text-xs tracking-[0.1em] text-slate-600 uppercase mb-3">India Baseline</h3>
+          <h4 class="font-display text-2xl text-slate-500 mb-4">Uncertain Climate</h4>
+          <p class="font-light text-slate-500 leading-relaxed">India operates without an official VASP licensing framework. Strict posture from RBI and SEBI.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const LABELS = ['Market & VASP Regs', 'Derivatives Rules', 'FX Freedom', 'KYC/AML Standards', 'Payment Rails', 'Legal Trust', 'Macro Stability'];
+
+    const DATA = {
+      IN: { radar: [2, 2, 3, 8, 10, 2, 10] },
+      CH: {
+        id: "Switzerland", flag: "🇨🇭", rank: "#1", color: "#10b981", 
+        regulator: "FINMA DLT Act", total: 64,
+        gdp: "1.2%", gdpDesc: "As a mature economy, GDP growth is low, but wealth concentration is high. Expanding here captures high-net-worth individual liquidity.",
+        radar: [10, 9, 10, 8, 8, 10, 9],
+        mod1: { title: "FINMA DLT Act", text: "Legally defined categories for tokens. Trading leveraged stock perps is legally structured, transparent, and protected by established statutory law." },
+        roadmap: [
+          {
+            phase: "Phase 1 (Months 1–6)", title: "Entity & Sandbox",
+            steps: [
+              { label: "Legal Incorporation", text: "Incorporate MochaTrade AG in Zug with CHF 100k capital.", link: "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/en" },
+              { label: "SRO Regulatory", text: "Join a FINMA-recognized SRO (such as VQF) for AML oversight.", link: "https://www.vqf.ch/en/" },
+              { label: "Sandbox & Ledger", text: "Deploy non-custodial smart contracts under CHF 1M exemption.", link: "https://www.finma.ch/en/authorisation/fintech/" }
+            ]
+          },
+          {
+            phase: "Phase 2 (Months 7–12)", title: "Pilot & Liquidity",
+            steps: [
+              { label: "Travel Rule Onboarding", text: "Implement FATF protocols for transfers exceeding CHF 1,000.", link: "https://www.finma.ch/en/supervision/cross-sector-topics/anti-money-laundering/" },
+              { label: "SIC Banking Rails", text: "Secure fiat accounts connected to Swiss Interbank Clearing (SIC).", link: "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/en?utm_source=copilot.com" },
+              { label: "Gated Beta", text: "Launch invite-only pilot for European wealth managers.", link: null }
+            ]
+          },
+          {
+            phase: "Phase 3 (Months 13–18)", title: "Retail & DLT Upgrade",
+            steps: [
+              { label: "Public Retail Rollout", text: "Launch apps with CHF/EUR-denominated margin collateral.", link: null },
+              { label: "DLT Facility License", text: "Apply for DLT Trading Facility authorization under FINMA.", link: "https://www.finma.ch/en/authorisation/fintech/" },
+              { label: "Asset Expansion", text: "Roll out token pairs tracking European equity indexes.", link: null }
+            ]
+          }
+        ]
+      },
+      AE: {
+        id: "UAE", flag: "🇦🇪", rank: "#2", color: "#0ea5e9", 
+        regulator: "VARA / DFSA (DIFC)", total: 58,
+        gdp: "4.5%", gdpDesc: "Driven by massive capital inflows, tech investments, and a growing expat population, strong non-oil economic expansion makes it an ideal HQ.",
+        radar: [9, 9, 9, 8, 8, 9, 6],
+        mod1: { title: "FMP Perpetual Legality", text: "The UAE provides explicit legal pathways for perpetual futures. VARA's rulebooks explicitly cover synthetic assets and leveraged margin engines." },
+        roadmap: [
+          {
+            phase: "Phase 1 (Months 1–6)", title: "Free Zone & VARA",
+            steps: [
+              { label: "Entity Establishment", text: "Establish presence in DIFC or DWTC.", link: "https://www.difc.ae/" },
+              { label: "VARA Application", text: "Submit filings for Full Market Product (FMP) license.", link: "https://www.vara.ae/en/" },
+              { label: "Aani On-Ramp", text: "Integrate Aani Payment Network for instant AED deposits.", link: "https://aep.ae/en/services/aani/" }
+            ]
+          },
+          {
+            phase: "Phase 2 (Months 7–12)", title: "Audit & Engine Test",
+            steps: [
+              { label: "Third-Party Audit", text: "Complete mandatory cybersecurity and PoR audits.", link: "https://www.vara.ae/en/" },
+              { label: "Local Identity", text: "Connect Emirates ID APIs for rapid 1-click resident onboarding.", link: "https://icp.gov.ae/en/" },
+              { label: "Beta Margin Engine", text: "Pilot execution engines using AED-to-USD pegged pools.", link: null }
+            ]
+          },
+          {
+            phase: "Phase 3 (Months 13–18)", title: "Commercial Launch",
+            steps: [
+              { label: "Public GCC Launch", text: "Launch trading services across the region under VARA clearance.", link: null },
+              { label: "Perpetuals Rollout", text: "Launch high-leverage perpetuals on US & GCC stocks.", link: null },
+              { label: "Market Maker Scaling", text: "Partner with regional hedge funds to deepen order books.", link: null }
+            ]
+          }
+        ]
+      },
+      BR: {
+        id: "Brazil", flag: "🇧🇷", rank: "#3", color: "#f59e0b", 
+        regulator: "BCB / CVM", total: 49,
+        gdp: "2.4%", gdpDesc: "Slower local GDP growth and historical inflation encourage Brazilian day traders to seek alternative yield and high-volatility US equities.",
+        radar: [6, 6, 5, 8, 10, 6, 8],
+        mod1: { title: "CVM VASP Allowance", text: "Brazil legally recognizes digital asset exchanges and mandates formal VASP authorization, mandatory asset segregation, and local registration." },
+        roadmap: [
+          {
+            phase: "Phase 1 (Months 1–6)", title: "Setup & BCB Application",
+            steps: [
+              { label: "Local Incorporation", text: "Incorporate a Brazilian SPSAV in São Paulo.", link: null },
+              { label: "VASP Application", text: "File licensing requests with the Central Bank of Brazil.", link: "https://www.bcb.gov.br/en" },
+              { label: "Pix Sandbox", text: "Integrate direct API webhooks via the Pix Network for 24/7 BRL transfers.", link: "https://www.bcb.gov.br/en/financialstability/pix_en" }
+            ]
+          },
+          {
+            phase: "Phase 2 (Months 7–12)", title: "Tax Webhooks & Beta",
+            steps: [
+              { label: "Automated Tax", text: "Build automated reporting webhooks to Receita Federal.", link: "https://www.gov.br/receitafederal/pt-br" },
+              { label: "CPF Verification", text: "Implement real-time CPF verification webhooks for KYC.", link: null },
+              { label: "Gated Pilot", text: "Run closed beta for 10k local traders testing Pix speed.", link: null }
+            ]
+          },
+          {
+            phase: "Phase 3 (Months 13–18)", title: "Mass Retail Launch",
+            steps: [
+              { label: "Full Public Release", text: "Go live nationwide across South America's largest retail market.", link: null },
+              { label: "BRL Perpetual Pairs", text: "Roll out local currency pairs for top retail US stocks.", link: null },
+              { label: "Retail Campaigns", text: "Launch localized Portuguese support and tournaments.", link: null }
+            ]
+          }
+        ]
+      }
+    };
+
+    let chartInstance = null;
+
+    function initRadar() {
+      const ctx = document.getElementById('starPlot').getContext('2d');
+      Chart.defaults.color = '#94a3b8';
+      Chart.defaults.font.family = "'JetBrains Mono', monospace";
+      
+      chartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: LABELS,
+          datasets: [
+            {
+              label: 'India (Baseline)', data: DATA.IN.radar,
+              borderColor: 'rgba(148,163,184,0.4)', backgroundColor: 'transparent',
+              borderWidth: 2, pointBackgroundColor: '#94a3b8', pointBorderColor: '#000', pointRadius: 3
+            },
+            {
+              label: 'Target', data: DATA.CH.radar,
+              borderColor: DATA.CH.color, backgroundColor: `${DATA.CH.color}22`, 
+              borderWidth: 2, pointBackgroundColor: DATA.CH.color, pointBorderColor: '#000', pointRadius: 5, fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0, max: 10,
+              angleLines: { color: 'rgba(255,255,255,0.05)' },
+              grid: { color: 'rgba(255,255,255,0.05)', circular: true },
+              pointLabels: { font: { size: 10, family: 'Inter' }, color: '#94a3b8', padding: 20 },
+              ticks: { display: false, stepSize: 2 }
+            }
+          },
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', padding: 12 } }
+        }
+      });
+    }
+
+    function buildMeters(targetData) {
+      const container = document.getElementById('meters-container');
+      container.innerHTML = '';
+      LABELS.forEach((label, idx) => {
+        const t = targetData.radar[idx], i = DATA.IN.radar[idx];
+        container.innerHTML += `
+          <div>
+            <div class="flex justify-between items-end mb-2">
+              <span class="font-mono text-xs text-slate-300 uppercase">${idx+1}. ${label}</span>
+              <span class="font-display text-lg text-white">${t}<span class="text-xs text-slate-500">/10</span></span>
+            </div>
+            <div class="meter-track h-2 w-full">
+              <div class="meter-fill" style="width: ${(t/10)*100}%; background-color: ${targetData.color}; box-shadow: 0 0 12px ${targetData.color}44;"></div>
+              <div class="meter-india-marker" style="left: ${(i/10)*100}%;"></div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function buildRoadmap(targetData) {
+      const container = document.getElementById('roadmap-container');
+      document.documentElement.style.setProperty('--active-theme-color', targetData.color);
+      container.innerHTML = '';
+
+      targetData.roadmap.forEach((phase) => {
+        let stepsHtml = '';
+        phase.steps.forEach((step) => {
+          if(step.link) {
+            stepsHtml += `
+              <a href="${step.link}" target="_blank" class="link-card has-link p-5 group">
+                <h4 class="font-display text-lg text-white mb-1 flex justify-between items-center">
+                  ${step.label}
+                  <svg class="w-4 h-4 link-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+                </h4>
+                <p class="font-light text-sm text-slate-400 leading-relaxed">${step.text}</p>
+              </a>
+            `;
+          } else {
+            stepsHtml += `
+              <div class="link-card p-5">
+                <h4 class="font-display text-lg text-white mb-1">${step.label}</h4>
+                <p class="font-light text-sm text-slate-500 leading-relaxed">${step.text}</p>
+              </div>
+            `;
+          }
+        });
+
+        container.innerHTML += `
+          <div class="flex flex-col gap-4">
+            <div class="mb-2">
+              <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 border border-white/10 px-3 py-1 rounded-full">${phase.phase}</span>
+              <h3 class="font-display text-2xl text-white mt-4" style="color: ${targetData.color}">${phase.title}</h3>
+            </div>
+            ${stepsHtml}
+          </div>
+        `;
+      });
+    }
+
+    // FIX: Calculate exact client rect offsets instead of unreliable flex offsetLeft
+    function animateSlider(activeBtnId) {
+      const btn = document.getElementById(activeBtnId);
+      const container = document.getElementById('switcher-container');
+      const slider = document.getElementById('active-slider');
+      
+      const btnRect = btn.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Calculate relative position to the container's absolute left edge
+      const relativeLeft = btnRect.left - containerRect.left;
+      
+      // Center the 24px slider precisely beneath the active button
+      const centerPosition = relativeLeft + (btnRect.width / 2) - 12; 
+      
+      slider.style.transform = `translateX(${centerPosition}px)`;
+    }
+
+    function setMarket(code) {
+      const d = DATA[code];
+      const activeId = `btn-${code}`;
+      
+      ['CH', 'AE', 'BR'].forEach(c => document.getElementById(`btn-${c}`).classList.remove('active'));
+      document.getElementById(activeId).classList.add('active');
+
+      animateSlider(activeId);
+
+      document.getElementById('bg-orb-1').style.background = `radial-gradient(circle, ${d.color}22 0%, transparent 60%)`;
+      document.getElementById('macro-glow').style.backgroundColor = d.color;
+
+      document.getElementById('ui-title').textContent = d.id;
+      document.getElementById('ui-flag').textContent = d.flag;
+      document.getElementById('ui-rank').textContent = d.rank;
+      document.getElementById('ui-regulator').textContent = d.regulator;
+      document.getElementById('ui-total-score').textContent = d.total;
+      document.getElementById('ui-gdp-target').textContent = d.gdp;
+      document.getElementById('ui-gdp-desc').textContent = d.gdpDesc;
+      document.getElementById('ui-mod1-title').textContent = d.mod1.title;
+      document.getElementById('ui-mod1-target').textContent = d.mod1.text;
+
+      if (chartInstance) {
+        chartInstance.data.datasets[1].data = d.radar;
+        chartInstance.data.datasets[1].borderColor = d.color;
+        chartInstance.data.datasets[1].backgroundColor = `${d.color}22`;
+        chartInstance.data.datasets[1].pointBackgroundColor = d.color;
+        chartInstance.update();
+        
+        document.getElementById('radar-legend-color').style.backgroundColor = d.color;
+        document.getElementById('radar-legend-color').style.color = d.color;
+        document.getElementById('legend-fill').style.backgroundColor = `${d.color}66`;
+        document.getElementById('legend-fill').style.borderColor = d.color;
+      }
+
+      buildMeters(d);
+      buildRoadmap(d);
+    }
+
+    window.onload = () => { 
+      initRadar(); 
+      // Ensure flexbox renders fully before calculating position
+      setTimeout(() => setMarket('CH'), 50); 
+      
+      window.addEventListener('resize', () => {
+        const activeBtn = document.querySelector('.switcher-btn.active');
+        if (activeBtn) animateSlider(activeBtn.id);
+      });
+    };
+  </script>
+</body>
+</html>
