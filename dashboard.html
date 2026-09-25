@@ -63,6 +63,17 @@
       border-radius: 28px;
     }
 
+    /* AI Modal Specific Glass (Deeper, darker luxury feel) */
+    .ai-glass-panel {
+      background: rgba(5, 5, 5, 0.7);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 1), inset 0 1px 0 rgba(255,255,255,0.1);
+      border-radius: 32px;
+    }
+
     .glass-inset {
       background: rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(20px);
@@ -153,6 +164,12 @@
       border-color: rgba(139, 92, 246, 0.6);
       color: white;
     }
+    
+    .reset-btn:hover {
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+      border-color: rgba(239, 68, 68, 0.6);
+      color: white;
+    }
   </style>
 </head>
 <body class="relative antialiased selection:bg-white/20 pb-24">
@@ -161,36 +178,48 @@
   <div class="orb-1" id="bg-orb-1"></div>
   <div class="orb-2" id="bg-orb-2"></div>
 
-  <!-- AI MODAL OVERLAY -->
-  <div id="ai-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-[#030407]/80 backdrop-blur-xl transition-opacity duration-300 opacity-0">
-    <div id="ai-modal-panel" class="glass-premium p-10 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- FIXED, FULL-SCREEN AI MODAL OVERLAY -->
+  <div id="ai-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-md transition-opacity duration-300 opacity-0 w-full h-full">
+    <!-- Luxury Panel -->
+    <div id="ai-modal-panel" class="ai-glass-panel p-10 w-full max-w-xl mx-4 transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col">
+      <!-- Ambient Internal Glow -->
+      <div class="absolute -top-20 -right-20 w-64 h-64 bg-violet-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+      <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-[80px] pointer-events-none"></div>
       
-      <h2 class="font-display text-3xl text-white mb-2">Run AI Agent</h2>
-      <p class="font-mono text-xs text-slate-400 uppercase tracking-widest mb-8">Generate Market Intelligence</p>
-      
-      <!-- Input View -->
-      <div id="ai-input-view">
-        <input type="text" id="ai-country-input" placeholder="Enter Target Jurisdiction (e.g., Japan, UK)" class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white font-display text-lg focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all mb-8 shadow-inner placeholder:text-slate-600" autocomplete="off" />
-        <div class="flex justify-end gap-4">
-          <button onclick="closeAIModal()" class="px-6 py-3 font-mono text-xs text-slate-400 uppercase tracking-widest hover:text-white transition-colors">Cancel</button>
-          <button onclick="executeAI()" class="glass-premium bg-violet-500/20 border-violet-500/30 px-8 py-3 rounded-full font-mono text-xs text-white uppercase tracking-widest hover:bg-violet-500/30 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all">Generate</button>
-        </div>
-      </div>
+      <!-- Close Button -->
+      <button onclick="closeAIModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
 
-      <!-- Loading View -->
-      <div id="ai-loading-view" class="hidden flex-col items-center justify-center py-10 relative z-10">
-         <svg class="w-12 h-12 text-violet-500 animate-spin mb-6" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-         </svg>
-         <p id="ai-loading-text" class="font-mono text-sm text-violet-300 tracking-widest uppercase animate-pulse">Initializing LLM...</p>
+      <div class="relative z-10">
+        <h2 class="font-display text-4xl text-white mb-2 tracking-tight">Intelligence Agent</h2>
+        <p class="font-mono text-xs text-violet-300/80 uppercase tracking-widest mb-10">Generative Jurisdiction Mapping</p>
+        
+        <!-- Input View -->
+        <div id="ai-input-view">
+          <input type="text" id="ai-country-input" placeholder="Enter Target Country (e.g., Japan, UK)" class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 text-white font-display text-xl focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all mb-8 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] placeholder:text-slate-600" autocomplete="off" />
+          
+          <div class="flex justify-end">
+            <button onclick="executeAI()" class="bg-gradient-to-r from-violet-600/60 to-fuchsia-600/60 border border-white/10 px-10 py-4 rounded-full font-mono text-xs text-white uppercase tracking-widest hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:from-violet-500/80 hover:to-fuchsia-500/80 transition-all active:scale-95">
+              Execute Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading View -->
+        <div id="ai-loading-view" class="hidden flex-col items-center justify-center py-12">
+           <svg class="w-16 h-16 text-violet-500 animate-spin mb-8" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+              <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+           </svg>
+           <p id="ai-loading-text" class="font-mono text-sm text-violet-300 tracking-widest uppercase animate-pulse">Initializing LLM...</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- FLOATING COMMAND BAR -->
-  <nav class="sticky top-4 md:top-8 z-50 w-full max-w-[1600px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 mb-10 transition-all duration-300">
+  <nav class="sticky top-4 md:top-8 z-50 w-full max-w-[1600px] mx-auto px-6 md:px-12 flex flex-col xl:flex-row items-center justify-between gap-4 md:gap-8 mb-10 transition-all duration-300">
     
     <div class="glass-premium px-6 py-3 rounded-full flex items-center gap-4 shadow-2xl shrink-0 cursor-pointer hover:bg-white/5 transition-colors" onclick="window.location.href='index.html'">
       <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
@@ -201,23 +230,29 @@
           <path d="M16 10V2" />
         </svg>
       </div>
-      <span class="font-mono text-[11px] font-medium tracking-[0.25em] text-slate-300 uppercase hidden sm:block">MochaTrade Intelligence</span>
+      <span class="font-mono text-[11px] font-medium tracking-[0.25em] text-slate-300 uppercase hidden md:block">MochaTrade</span>
     </div>
 
     <!-- DYNAMIC SWITCHER -->
-    <div class="glass-premium px-8 py-4 md:px-10 md:py-5 rounded-full flex items-center gap-8 md:gap-12 font-display font-medium text-base md:text-lg relative shadow-2xl overflow-x-auto no-scrollbar w-full md:w-auto justify-start md:justify-center" id="switcher-container">
+    <div class="glass-premium px-8 py-4 md:px-10 md:py-5 rounded-full flex items-center gap-8 md:gap-12 font-display font-medium text-base md:text-lg relative shadow-2xl overflow-x-auto no-scrollbar w-full xl:w-auto justify-start xl:justify-center" id="switcher-container">
       <!-- Buttons injected by JS -->
     </div>
 
-    <div class="flex items-center gap-4 shrink-0">
-      <!-- THE MAGIC AI BUTTON -->
+    <div class="flex items-center gap-4 shrink-0 w-full xl:w-auto justify-between xl:justify-end">
+      <!-- RESET BUTTON -->
+      <button onclick="resetConsole()" class="reset-btn glass-premium p-3 md:px-4 md:py-3 rounded-full flex items-center gap-2 shadow-2xl transition-all duration-300 text-slate-400 group" title="Reset to Default Markets">
+        <svg class="w-4 h-4 text-slate-400 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+        <span class="font-mono text-[10px] uppercase tracking-widest hidden sm:block group-hover:text-red-400">Reset</span>
+      </button>
+
+      <!-- AI BUTTON -->
       <button onclick="openAIModal()" class="ai-btn glass-premium px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl transition-all duration-300 text-slate-400 group">
         <svg class="w-4 h-4 text-violet-400 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span class="font-mono text-[10px] uppercase tracking-widest">+ Run AI Agent</span>
       </button>
 
       <div class="glass-premium px-6 py-3 rounded-full hidden lg:flex items-center gap-4 shadow-2xl">
-        <span class="font-mono text-[10px] text-slate-500 uppercase tracking-widest">Global Rank</span>
+        <span class="font-mono text-[10px] text-slate-500 uppercase tracking-widest">Rank</span>
         <span id="ui-rank" class="font-display text-white text-xl font-medium fade-elem">--</span>
       </div>
     </div>
@@ -346,7 +381,6 @@
         <h3 class="font-display text-3xl text-white font-light mb-2">Regulatory Scoring Rubric</h3>
         <p class="font-mono text-xs text-slate-500 uppercase tracking-widest mb-10">Absolute Scoring Scale (0-10) per Legal Dimension</p>
         
-        <!-- DYNAMIC METERS INJECTED HERE -->
         <div class="space-y-6 flex-1" id="meters-container"></div>
         
         <div class="mt-8 pt-6 border-t border-white/5 flex items-center gap-6 font-mono text-xs text-slate-500">
@@ -367,10 +401,9 @@
       <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-white/10 pb-6 gap-4">
         <div>
           <h2 class="font-display text-4xl text-white font-light">18-Month Phased Roadmap</h2>
-          <p class="font-mono text-xs text-slate-400 uppercase tracking-widest mt-2">Interactive Strategy Execution</p>
+          <p class="font-mono text-xs text-slate-400 uppercase tracking-widest mt-2">Interactive Strategy Execution (Select cards for documentation)</p>
         </div>
       </div>
-      <!-- DYNAMIC ROADMAP INJECTED HERE -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-elem" id="roadmap-container"></div>
     </section>
 
@@ -381,7 +414,7 @@
   </main>
 
   <script>
-    // --- 1. DEFAULT DATA (Used if LocalStorage is empty or corrupted) ---
+    // --- 1. DEFAULT DATA ---
     const LABELS = ['Market & VASP Regs', 'Derivatives Rules', 'FX Freedom', 'KYC/AML Standards', 'Payment Rails', 'Legal Trust', 'Macro Stability'];
     const MODULE_HEADERS = ['01 / VASP & Regulations', '02 / FX & Capital Controls', '03 / Identity & AML', '04 / Fiat Infrastructure'];
 
@@ -463,18 +496,28 @@
       }
     };
 
-    // --- 2. ENGINE LOGIC & RENDERING ---
     let DATA = {};
     let chartInstance = null;
     let currentRiskScore = 0;
     let sortedTargets = [];
 
-    // --- 3. GEN-AI MOCK FACTORY ---
+    // --- 3. RESET FUNCTION ---
+    function resetConsole() {
+      localStorage.removeItem('mocha_data');
+      window.location.reload();
+    }
+
+    // --- 4. GEN-AI MOCK FACTORY ---
     function openAIModal() {
       const modal = document.getElementById('ai-modal');
       modal.classList.remove('hidden');
       setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('ai-modal-panel').classList.remove('scale-95'); }, 10);
       document.getElementById('ai-country-input').focus();
+      
+      // Allow 'Enter' key to submit
+      document.getElementById('ai-country-input').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') executeAI();
+      });
     }
 
     function closeAIModal() {
@@ -495,7 +538,6 @@
       const input = document.getElementById('ai-country-input').value.trim();
       if(!input) return;
 
-      // Switch to loading view
       document.getElementById('ai-input-view').classList.add('hidden');
       document.getElementById('ai-loading-view').classList.remove('hidden');
       document.getElementById('ai-loading-view').classList.add('flex');
@@ -507,19 +549,18 @@
         if(msgIdx < messages.length) { loadingText.textContent = messages[msgIdx]; msgIdx++; }
       }, 600);
 
-      // Construct Mock AI Response based on user input
       setTimeout(() => {
         clearInterval(msgInterval);
         const code = input.substring(0, 2).toUpperCase();
         const color = aiColors[Math.floor(Math.random() * aiColors.length)];
-        const totalScore = Math.floor(Math.random() * 20) + 48; // Dynamic total 48-68
-        const riskScore = Math.floor(Math.random() * 40) + 40; // Dynamic risk 40-80
+        const totalScore = Math.floor(Math.random() * 20) + 48; 
+        const riskScore = Math.floor(Math.random() * 40) + 40; 
 
         const aiGeneratedData = {
           id: input, flag: code, color: color, regulator: `${input} Financial Authority`, total: totalScore,
           gdp: (Math.random() * 4 + 1).toFixed(1) + "%", 
           gdpDesc: `AI Analysis: ${input} demonstrates emerging potential for digital asset integration, driven by recent regional macroeconomic policy shifts.`,
-          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 6), // 6-9 range
+          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 6), 
           matrix: {
             riskScore: riskScore,
             risk: `Potential regulatory friction with evolving local licensing frameworks and capital requirements in ${input}.`,
@@ -539,26 +580,20 @@
           ]
         };
 
-        // 1. Inject into memory
         DATA[code] = aiGeneratedData;
-        
-        // 2. Save to Cache
         localStorage.setItem('mocha_data', JSON.stringify(DATA));
         
-        // 3. Re-init Console
         closeAIModal();
         initConsole(true, code);
-      }, 3000); // 3 second artificial AI delay
+      }, 3000); 
     }
 
-    // --- 4. INITIALIZATION ---
+    // --- 5. CORE SYSTEM ---
     function initConsole(isUpdate = false, switchTargetCode = null) {
-      // Robust Cache Load (Fixes the blank data bug)
       try {
         const stored = localStorage.getItem('mocha_data');
         if(stored) { 
           DATA = JSON.parse(stored); 
-          // Integrity Check: If the cache was corrupted by the index.html save, reset it.
           if(!DATA.CH.roadmap) {
             DATA = FULL_DEFAULT_DATA;
             localStorage.setItem('mocha_data', JSON.stringify(DATA));
@@ -571,15 +606,13 @@
 
       document.getElementById('ui-baseline-score').textContent = DATA.IN.total;
 
-      // Build Sorted Targets Array
       const targetKeys = Object.keys(DATA).filter(k => k !== 'IN');
       sortedTargets = targetKeys.map(k => ({ code: k, ...DATA[k] })).sort((a, b) => b.total - a.total);
 
-      // Build Nav Switcher
       const switcher = document.getElementById('switcher-container');
       let buttonsHtml = '';
       sortedTargets.forEach(t => {
-        buttonsHtml += `<button onclick="setMarket('${t.code}')" id="btn-${t.code}" class="switcher-btn">${t.id}</button>`;
+        buttonsHtml += `<button onclick="setMarket('${t.code}')" id="btn-${t.code}" class="switcher-btn px-2">${t.id}</button>`;
       });
       buttonsHtml += `<div id="active-slider" class="absolute bottom-2.5 left-0 h-[3px] rounded-full bg-white shadow-[0_0_12px_#fff] transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style="width: 24px;"></div>`;
       switcher.innerHTML = buttonsHtml;
@@ -628,7 +661,7 @@
       const btnRect = btn.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
       
-      const relativeLeft = btnRect.left - containerRect.left;
+      const relativeLeft = btnRect.left - containerRect.left + container.scrollLeft;
       const centerPosition = relativeLeft + (btnRect.width / 2) - 12; 
       
       slider.style.transform = `translateX(${centerPosition}px)`;
@@ -807,7 +840,6 @@
       buildRoadmap(d);
     }
 
-    // Launch Engine
     window.onload = () => initConsole(false);
   </script>
 </body>
