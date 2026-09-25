@@ -63,7 +63,6 @@
       border-radius: 28px;
     }
 
-    /* Ultimate Luxury AI Modal Glass */
     .ai-glass-panel {
       background: rgba(5, 6, 8, 0.85);
       backdrop-filter: blur(80px);
@@ -185,15 +184,12 @@
   <div class="orb-1" id="bg-orb-1"></div>
   <div class="orb-2" id="bg-orb-2"></div>
 
-  <!-- FIXED, FULL-SCREEN AI MODAL OVERLAY (PERFECTLY CENTERED) -->
+  <!-- FIXED, FULL-SCREEN AI MODAL OVERLAY -->
   <div id="ai-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-2xl transition-opacity duration-500 opacity-0">
     
-    <!-- Luxury Panel -->
     <div id="ai-modal-panel" class="ai-glass-panel p-10 md:p-14 w-full max-w-2xl mx-4 transform scale-95 transition-all duration-500 relative overflow-hidden flex flex-col">
-      <!-- Ambient Internal Glow -->
       <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
       
-      <!-- Close Button -->
       <button onclick="closeAIModal()" class="absolute top-8 right-8 text-slate-500 hover:text-white transition-colors z-20">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -202,12 +198,10 @@
         <h2 class="font-display font-light text-5xl text-white mb-3 tracking-tight">Intelligence Agent</h2>
         <p class="font-mono text-[10px] text-slate-400 uppercase tracking-[0.3em] mb-12">Generative Jurisdiction Mapping</p>
         
-        <!-- Input View -->
         <div id="ai-input-view">
           <input type="text" id="ai-country-input" placeholder="Enter Target Country (e.g., Japan, UK)" class="w-full bg-black/60 border border-white/10 rounded-2xl px-8 py-6 text-white font-display text-2xl focus:outline-none focus:border-white/30 focus:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all mb-10 placeholder:text-slate-600 placeholder:font-light" autocomplete="off" />
           
           <div class="flex justify-end">
-            <!-- LUXURY EXECUTE BUTTON -->
             <button onclick="executeAI()" class="relative overflow-hidden bg-transparent border border-white/20 px-12 py-4 rounded-full font-display text-sm font-semibold text-white uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all active:scale-95 group">
               <span class="relative z-10">Execute Analysis</span>
               <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
@@ -215,7 +209,6 @@
           </div>
         </div>
 
-        <!-- Luxury Loading View -->
         <div id="ai-loading-view" class="hidden flex-col items-center justify-center py-16">
            <div class="relative w-20 h-20 mb-8">
                <div class="absolute inset-0 border border-white/20 rounded-full animate-ping opacity-20"></div>
@@ -521,7 +514,7 @@
     function openAIModal() {
       const modal = document.getElementById('ai-modal');
       modal.classList.remove('hidden');
-      modal.classList.add('flex'); // Fixes absolute centering
+      modal.classList.add('flex'); 
       
       setTimeout(() => { 
         modal.classList.remove('opacity-0'); 
@@ -569,30 +562,32 @@
         clearInterval(msgInterval);
         const code = input.substring(0, 2).toUpperCase();
         const color = aiColors[Math.floor(Math.random() * aiColors.length)];
-        const totalScore = Math.floor(Math.random() * 20) + 48; 
-        const riskScore = Math.floor(Math.random() * 40) + 40; 
+        
+        // ENSURE TOTAL SCORE IS NEVER ABOVE 49
+        const totalScore = Math.floor(Math.random() * 20) + 30; // Max 49
+        const riskScore = Math.floor(Math.random() * 20) + 75; // Range: 75 to 95 (High Risk)
 
         const aiGeneratedData = {
-          id: input, flag: code, color: color, regulator: `${input} Financial Authority`, total: totalScore,
-          gdp: (Math.random() * 4 + 1).toFixed(1) + "%", 
-          gdpDesc: `AI Analysis: ${input} demonstrates emerging potential for digital asset integration, driven by recent regional macroeconomic policy shifts.`,
-          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 6), 
+          id: input, flag: code, color: color, regulator: `${input} Regulatory Authority`, total: totalScore,
+          gdp: (Math.random() * 3 + 0.5).toFixed(1) + "%", 
+          gdpDesc: `AI Analysis: ${input} demonstrates significant friction and strict capital barriers, making near-term digital asset integration highly challenging.`,
+          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 3), // Range 3-6 to reflect low suitability
           matrix: {
             riskScore: riskScore,
-            risk: `Potential regulatory friction with evolving local licensing frameworks and capital requirements in ${input}.`,
-            mitigation: `Establish early dialogue with the ${input} Financial Authority to secure a sandbox operating exemption.`,
-            reward: `Access to an expanding demographic of tech-native traders and deep liquidity pools within ${input}.`
+            risk: `Severe regulatory friction, lacking clear VASP frameworks, and highly restrictive capital controls in ${input}.`,
+            mitigation: `Restrict operations strictly to B2B technology provision or regulatory sandbox observation rather than direct retail brokerage.`,
+            reward: `Long-term strategic positioning for when the regional regulatory climate eventually thaws and adopts global standards.`
           },
           modules: [
-            { title: "VASP Licensing Matrix", text: `Operations require formal application and review under ${input}'s evolving digital asset provisions and safe-harbor rules.` },
-            { title: "Capital Freedom", text: "Standard international capital controls apply. Monitor local banking guidelines for institutional remittance flows." },
-            { title: "KYC Integration", text: `Requires seamless integration with ${input}'s primary digital identity providers for rapid user onboarding.` },
-            { title: "Local Payment Rails", text: `Integration with ${input}'s domestic instant payment networks is critical to bypass international wire delays.` }
+            { title: "Restrictive Licensing", text: `Operations are currently bottlenecked by ${input}'s prohibitive digital asset provisions and lack of safe-harbor rules.` },
+            { title: "Strict Capital Controls", text: "Heavy international capital controls apply. Outbound remittance is severely capped and heavily taxed." },
+            { title: "Fragmented KYC", text: `Lack of a unified digital identity framework in ${input} creates high friction and drop-off during user onboarding.` },
+            { title: "Legacy Payment Rails", text: `Reliance on legacy wire transfers causes multi-day delays for fiat settlement, reducing trading velocity.` }
           ],
           roadmap: [
-            { phase: "Phase 1 (Months 1-6)", title: "Entity Formation", steps: [{label: "Local Setup", text: `Incorporate entity in ${input}.`, link: null}, {label: "Compliance", text: "Engage local legal counsel.", link: null}, {label: "Banking", text: "Secure fiat clearing.", link: null}] },
-            { phase: "Phase 2 (Months 7-12)", title: "Beta Launch", steps: [{label: "Localisation", text: "Adapt UI & UX.", link: null}, {label: "Sandbox", text: "Execute limited beta.", link: null}, {label: "Liquidity", text: "Connect market makers.", link: null}] },
-            { phase: "Phase 3 (Months 13-18)", title: "Market Scaling", steps: [{label: "Public Rollout", text: "Full retail availability.", link: null}, {label: "Marketing", text: "Launch campaigns.", link: null}, {label: "Asset Expansion", text: "List local token pairs.", link: null}] }
+            { phase: "Phase 1 (Months 1-6)", title: "Legal Observation", steps: [{label: "Local Counsel", text: `Engage compliance team in ${input}.`, link: null}, {label: "Lobbying", text: "Join local fintech associations.", link: null}, {label: "B2B Setup", text: "Explore non-custodial tech provision.", link: null}] },
+            { phase: "Phase 2 (Months 7-12)", title: "Sandbox Application", steps: [{label: "Drafting", text: "Prepare sandbox filings.", link: null}, {label: "Partnerships", text: "Find licensed local bank.", link: null}, {label: "Architecture", text: "Build ring-fenced environment.", link: null}] },
+            { phase: "Phase 3 (Months 13-18)", title: "Restricted Pilot", steps: [{label: "HNWI Pilot", text: "Invite-only testing.", link: null}, {label: "Audit", text: "Submit data to regulators.", link: null}, {label: "Pivot", text: "Wait for legal clarity.", link: null}] }
           ]
         };
 
