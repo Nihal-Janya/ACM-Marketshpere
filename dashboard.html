@@ -64,7 +64,7 @@
     }
 
     .ai-glass-panel {
-      background: rgba(5, 6, 8, 0.85);
+      background: rgba(5, 6, 8, 0.88);
       backdrop-filter: blur(80px);
       -webkit-backdrop-filter: blur(80px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -124,15 +124,28 @@
       -webkit-text-fill-color: transparent;
     }
 
+    /* Cross-browser invisible scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
     .switcher-btn {
       position: relative;
       transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
       color: #64748b;
       white-space: nowrap;
+      cursor: pointer;
+    }
+    .switcher-btn:hover {
+      color: #e2e8f0;
     }
     .switcher-btn.active {
       color: #ffffff;
-      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+      text-shadow: 0 0 15px rgba(255,255,255,0.4);
     }
 
     .meter-track {
@@ -186,7 +199,6 @@
 
   <!-- FIXED, FULL-SCREEN AI MODAL OVERLAY -->
   <div id="ai-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-2xl transition-opacity duration-500 opacity-0">
-    
     <div id="ai-modal-panel" class="ai-glass-panel p-10 md:p-14 w-full max-w-2xl mx-4 transform scale-95 transition-all duration-500 relative overflow-hidden flex flex-col">
       <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
       
@@ -221,42 +233,49 @@
     </div>
   </div>
 
-  <!-- FLOATING COMMAND BAR -->
-  <nav class="sticky top-4 md:top-8 z-50 w-full max-w-[1600px] mx-auto px-6 md:px-12 flex flex-col xl:flex-row items-center justify-between gap-4 md:gap-8 mb-10 transition-all duration-300">
+  <!-- FLOATING COMMAND BAR: THREE-POINT STABLE ANCHOR LAYOUT -->
+  <nav class="sticky top-4 md:top-6 z-50 w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between gap-4 mb-8">
     
-    <div class="glass-premium px-6 py-3 rounded-full flex items-center gap-4 shadow-2xl shrink-0 cursor-pointer hover:bg-white/5 transition-colors" onclick="window.location.href='index.html'">
-      <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
-        <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 14h16a8 8 0 0 1-16 0Z" />
-          <path d="M8 10V6" />
-          <path d="M12 10V4" />
-          <path d="M16 10V2" />
-        </svg>
+    <!-- LEFT: BRAND ANCHOR (NEVER SHRINKS) -->
+    <div class="shrink-0 flex items-center">
+      <div class="glass-premium px-5 py-2.5 rounded-full flex items-center gap-3.5 shadow-2xl cursor-pointer hover:bg-white/5 transition-colors" onclick="window.location.href='index.html'">
+        <div class="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center bg-white/5 shrink-0">
+          <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14h16a8 8 0 0 1-16 0Z" />
+            <path d="M8 10V6" />
+            <path d="M12 10V4" />
+            <path d="M16 10V2" />
+          </svg>
+        </div>
+        <span class="font-mono text-[11px] font-medium tracking-[0.25em] text-slate-300 uppercase whitespace-nowrap">MochaTrade</span>
       </div>
-      <span class="font-mono text-[11px] font-medium tracking-[0.25em] text-slate-300 uppercase hidden md:block">MochaTrade</span>
     </div>
 
-    <!-- DYNAMIC SWITCHER -->
-    <div class="glass-premium px-8 py-4 md:px-10 md:py-5 rounded-full flex items-center gap-8 md:gap-12 font-display font-medium text-base md:text-lg relative shadow-2xl overflow-x-auto no-scrollbar w-full xl:w-auto justify-start xl:justify-center" id="switcher-container">
-      <!-- Buttons injected by JS -->
+    <!-- MIDDLE: RESPONSIVE SWITCHER CAPSULE (CONSTRAINED & INTERNALLY SCROLLING) -->
+    <div class="min-w-0 flex-1 flex justify-center max-w-[720px] mx-2">
+      <div class="glass-premium px-6 py-2.5 rounded-full flex items-center gap-5 md:gap-7 font-display font-medium text-sm tracking-wide relative shadow-2xl overflow-x-auto no-scrollbar scroll-smooth w-auto max-w-full" id="switcher-container">
+        <!-- Buttons injected dynamically -->
+      </div>
     </div>
 
-    <div class="flex items-center gap-4 shrink-0 w-full xl:w-auto justify-between xl:justify-end">
-      <!-- RESET BUTTON -->
-      <button onclick="resetConsole()" class="reset-btn glass-premium p-3 md:px-4 md:py-3 rounded-full flex items-center gap-2 shadow-2xl transition-all duration-300 text-slate-400 group" title="Reset to Default Markets">
-        <svg class="w-4 h-4 text-slate-400 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-        <span class="font-mono text-[10px] uppercase tracking-widest hidden sm:block group-hover:text-red-400">Reset</span>
+    <!-- RIGHT: ACTION CONTROLS (NEVER SHRINKS, NEVER WRAPS) -->
+    <div class="shrink-0 flex items-center gap-3">
+      <!-- Reset Button -->
+      <button onclick="resetConsole()" class="reset-btn glass-premium px-4 py-2.5 rounded-full flex items-center justify-center gap-2 shadow-2xl transition-all duration-300 text-slate-400 group shrink-0" title="Reset to Default Markets">
+        <svg class="w-3.5 h-3.5 shrink-0 text-slate-400 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+        <span class="font-mono text-[10px] uppercase tracking-widest group-hover:text-red-400 whitespace-nowrap hidden sm:inline">Reset</span>
       </button>
 
-      <!-- AI BUTTON -->
-      <button onclick="openAIModal()" class="ai-btn glass-premium px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl transition-all duration-300 text-slate-400 group">
-        <svg class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span class="font-mono text-[10px] uppercase tracking-widest text-white/70 group-hover:text-white">+ Run AI Agent</span>
+      <!-- AI Agent Trigger -->
+      <button onclick="openAIModal()" class="ai-btn glass-premium px-5 py-2.5 rounded-full flex items-center justify-center gap-2.5 shadow-2xl transition-all duration-300 text-slate-300 group shrink-0">
+        <svg class="w-3.5 h-3.5 shrink-0 text-white/50 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span class="font-mono text-[10px] uppercase tracking-widest text-white/80 group-hover:text-white whitespace-nowrap">+ Run AI Agent</span>
       </button>
 
-      <div class="glass-premium px-6 py-3 rounded-full hidden lg:flex items-center gap-4 shadow-2xl">
-        <span class="font-mono text-[10px] text-slate-500 uppercase tracking-widest">Rank</span>
-        <span id="ui-rank" class="font-display text-white text-xl font-medium fade-elem">--</span>
+      <!-- Rank Indicator -->
+      <div class="glass-premium px-5 py-2.5 rounded-full hidden lg:flex items-center gap-3 shadow-2xl shrink-0">
+        <span class="font-mono text-[10px] text-slate-500 uppercase tracking-widest whitespace-nowrap">Rank</span>
+        <span id="ui-rank" class="font-display text-white text-base font-semibold fade-elem whitespace-nowrap">--</span>
       </div>
     </div>
   </nav>
@@ -504,17 +523,17 @@
     let currentRiskScore = 0;
     let sortedTargets = [];
 
-    // --- 3. RESET FUNCTION ---
+    // --- 2. RESET FUNCTION ---
     function resetConsole() {
       localStorage.removeItem('mocha_data');
       window.location.reload();
     }
 
-    // --- 4. GEN-AI MOCK FACTORY ---
+    // --- 3. GEN-AI ENGINE ---
     function openAIModal() {
       const modal = document.getElementById('ai-modal');
       modal.classList.remove('hidden');
-      modal.classList.add('flex'); 
+      modal.classList.add('flex');
       
       setTimeout(() => { 
         modal.classList.remove('opacity-0'); 
@@ -563,15 +582,15 @@
         const code = input.substring(0, 2).toUpperCase();
         const color = aiColors[Math.floor(Math.random() * aiColors.length)];
         
-        // ENSURE TOTAL SCORE IS NEVER ABOVE 49
-        const totalScore = Math.floor(Math.random() * 20) + 30; // Max 49
-        const riskScore = Math.floor(Math.random() * 20) + 75; // Range: 75 to 95 (High Risk)
+        // Strict boundary: Score is never above 49
+        const totalScore = Math.floor(Math.random() * 19) + 30; // 30 to 48
+        const riskScore = Math.floor(Math.random() * 20) + 75;  // 75 to 95
 
         const aiGeneratedData = {
           id: input, flag: code, color: color, regulator: `${input} Regulatory Authority`, total: totalScore,
           gdp: (Math.random() * 3 + 0.5).toFixed(1) + "%", 
           gdpDesc: `AI Analysis: ${input} demonstrates significant friction and strict capital barriers, making near-term digital asset integration highly challenging.`,
-          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 3), // Range 3-6 to reflect low suitability
+          radar: Array.from({length: 7}, () => Math.floor(Math.random() * 4) + 3),
           matrix: {
             riskScore: riskScore,
             risk: `Severe regulatory friction, lacking clear VASP frameworks, and highly restrictive capital controls in ${input}.`,
@@ -596,10 +615,10 @@
         
         closeAIModal();
         initConsole(true, code);
-      }, 3000); 
+      }, 2500); 
     }
 
-    // --- 5. CORE SYSTEM ---
+    // --- 4. CORE ENGINE & SLIDER TRACKING ---
     function initConsole(isUpdate = false, switchTargetCode = null) {
       try {
         const stored = localStorage.getItem('mocha_data');
@@ -622,10 +641,13 @@
 
       const switcher = document.getElementById('switcher-container');
       let buttonsHtml = '';
+      
       sortedTargets.forEach(t => {
-        buttonsHtml += `<button onclick="setMarket('${t.code}')" id="btn-${t.code}" class="switcher-btn px-2">${t.id}</button>`;
+        buttonsHtml += `<button onclick="setMarket('${t.code}')" id="btn-${t.code}" class="switcher-btn px-2 shrink-0">${t.id}</button>`;
       });
-      buttonsHtml += `<div id="active-slider" class="absolute bottom-2.5 left-0 h-[3px] rounded-full bg-white shadow-[0_0_12px_#fff] transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style="width: 24px;"></div>`;
+      
+      buttonsHtml += `<div id="active-slider" class="absolute bottom-1.5 left-0 h-[2.5px] rounded-full bg-white shadow-[0_0_12px_#fff] transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style="width: 24px;"></div>`;
+      
       switcher.innerHTML = buttonsHtml;
 
       if(!isUpdate) initRadar();
@@ -665,17 +687,15 @@
 
     function animateSlider(activeBtnId) {
       const btn = document.getElementById(activeBtnId);
-      if(!btn) return;
-      const container = document.getElementById('switcher-container');
       const slider = document.getElementById('active-slider');
-      
-      const btnRect = btn.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      
-      const relativeLeft = btnRect.left - containerRect.left + container.scrollLeft;
-      const centerPosition = relativeLeft + (btnRect.width / 2) - 12; 
-      
+      if(!btn || !slider) return;
+
+      // Mathematical centering using native container offset: Immune to viewport scaling
+      const centerPosition = btn.offsetLeft + (btn.offsetWidth / 2) - 12;
       slider.style.transform = `translateX(${centerPosition}px)`;
+
+      // Smoothly guarantee the selected item is centered and never clipped on the left
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
     function animateRiskScore(targetScore) {
@@ -800,7 +820,7 @@
       const activeBtn = document.getElementById(`btn-${code}`);
       if(activeBtn) {
         activeBtn.classList.add('active');
-        animateSlider(`btn-${code}`);
+        requestAnimationFrame(() => animateSlider(`btn-${code}`));
       }
 
       document.getElementById('bg-orb-1').style.background = `radial-gradient(circle, ${d.color}22 0%, transparent 60%)`;
@@ -851,6 +871,7 @@
       buildRoadmap(d);
     }
 
+    // Launch Engine
     window.onload = () => initConsole(false);
   </script>
 </body>
